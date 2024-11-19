@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Ensure required environment variables are set
 if [[ -z "$AWS_APP_ID" || -z "$DOMAIN" || -z "$APP_NAME" || -z "$REGION" ]]; then
   echo "Error: AWS_APP_ID, DOMAIN, APP_NAME, and REGION environment variables must be set."
   exit 1
@@ -12,7 +13,7 @@ fi
 
 CUSTOMER_CONFIG_FILE="utils/customerConfig.ts"
 
-customer_configs_content="export const customerConfigs: { [key: string]: CustomerConfig } = {\n"
+customer_configs_content=""
 
 domains=$(aws amplify list-domain-associations --app-id "$AWS_APP_ID" --query 'domainAssociations[].domainName' --output text --region "$REGION")
 
@@ -75,21 +76,37 @@ for subdomain in "${subdomains[@]}"; do
   customer_configs_content+="    },\n"
 done
 
-customer_configs_content+="};\n"
+if [[ -n "$customer_configs_content" ]]; then
+  customer_configs_content="${customer_configs_content%,\n}"
+fi
 
-customer_config_ts_content="// utils/customerConfig.ts\n\n"
-customer_config_ts_content+="export interface CustomerConfig {\n"
-customer_config_ts_content+="    cognitoDomain: string;\n"
-customer_config_ts_content+="    clientId: string;\n"
-customer_config_ts_content+="    clientSecret: string;\n"
-customer_config_ts_content+="    userPoolId: string;\n"
-customer_config_ts_content+="    region: string;\n"
-customer_config_ts_content+="    redirectUri: string;\n"
-customer_config_ts_content+="    logoutUri: string;\n"
-customer_config_ts_content+="}\n\n"
-customer_config_ts_content+="$customer_configs_content"
+existing_content=$(cat "$CUSTOMER_CONFIG_FILE")
 
-echo -e "$customer_config_ts_content" > "$CUSTOMER_CONFIG_FILE"
+updated_content=$(echo "$existing_content" | awk -v configs="$customer_configs_content" '
+  BEGIN {found=0}
+  {
+    if ($0 ~ /\/\/ Add your customer configurations here/) {
+      print configs
+      found=1
+    } else {
+      print $0
+    }
+  }
+  END {
+    if (found == 0) {
+      print "Error: Placeholder line not found in customerConfig.ts" > "/dev/stderr"
+      exit 1
+    }
+  }
+')
+
+if [[ $? -ne 0 ]]; then
+  echo "Error updating customerConfig.ts. Placeholder line not found."
+  exit 1
+fi
+
+echo "$updated_content" > "$CUSTOMER_CONFIG_FILE"
+
 echo "customerConfig.ts has been updated."
 
-cat utils/customerConfig.ts
+cat "$CUSTOMER_CONFIG_FILE"
