@@ -6,8 +6,6 @@ if [[ -z "$AWS_APP_ID" || -z "$DOMAIN" || -z "$APP_NAME" || -z "$REGION" ]]; the
   exit 1
 fi
 
-echo "Listing custom domains for app $AWS_APP_ID"
-
 # Retrieve the list of custom domains
 domains=$(aws amplify list-domain-associations --app-id $AWS_APP_ID --query 'domainAssociations[].domainName' --output text)
 
@@ -32,10 +30,18 @@ for domain in $domains; do
   subdomains+=("$subdomain")
 done
 
+# Initialize an array to hold the final list
+pool_list=()
+
 # Create the final list
 echo "Final list:"
 for subdomain in "${subdomains[@]}"; do
-  modified_subdomain=$(echo "$APP_NAME" | sed "s/{domain}/$subdomain/g")
-  modified_subdomain=$(echo "$modified_subdomain" | sed "s/{region}/$REGION/g")
-  echo "Cognito Pool : $modified_subdomain"
+  pool_name=$(echo "$APP_NAME" | sed "s/{domain}/$subdomain/g")
+  pool_name=$(echo "pool_name" | sed "s/{region}/$REGION/g")
+  pool_list+=("$pool_name")
+done
+
+# Print the final list
+for pool_name in "${pool_list[@]}"; do
+  echo "$pool_name"
 done
