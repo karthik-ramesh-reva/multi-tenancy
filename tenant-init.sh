@@ -48,7 +48,7 @@ for subdomain in "${subdomains[@]}"; do
     continue
   fi
 
-  cognito_domain="${pool_name}.auth.${REGION}.amazoncognito.com"
+  cognito_domain="reva-auth-${subdomain}.auth.${REGION}.amazoncognito.com"
 
   app_clients=$(aws cognito-idp list-user-pool-clients --user-pool-id "$user_pool_id" --region "$REGION" --query 'UserPoolClients[].{ClientId:ClientId,ClientName:ClientName}' --output json)
 
