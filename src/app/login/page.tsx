@@ -1,4 +1,4 @@
-// src/app/login/page.tsx
+// src/app/login/route.ts
 
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';

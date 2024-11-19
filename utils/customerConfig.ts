@@ -6,7 +6,6 @@ export interface CustomerConfig {
     userPoolId: string;
     region: string;
     redirectUri: string;
-    logoUrl: string;
 }
 
 export const customerConfigs: { [key: string]: CustomerConfig } = {
@@ -16,7 +15,6 @@ export const customerConfigs: { [key: string]: CustomerConfig } = {
         userPoolId: 'us-east-1_9lP996gFI',
         region: 'us-east-1',
         redirectUri: 'https://mt1.ea.reva.ai/callback',
-        logoUrl: '/logos/mt1.png',
     },
     mt2: {
         cognitoDomain: 'reva-auth-test9.auth.us-east-1.amazoncognito.com',
@@ -24,7 +22,6 @@ export const customerConfigs: { [key: string]: CustomerConfig } = {
         userPoolId: 'us-east-1_YEce83Zit',
         region: 'us-east-1',
         redirectUri: 'https://mt2.ea.reva.ai/callback',
-        logoUrl: '/logos/mt2.png',
     },
     mt3: {
         cognitoDomain: 'https://reva-auth-test6.auth.us-east-1.amazoncognito.com',
@@ -32,7 +29,6 @@ export const customerConfigs: { [key: string]: CustomerConfig } = {
         userPoolId: 'us-east-1_B7VSw0fEc',
         region: 'us-east-1',
         redirectUri: 'https://mt3.ea.reva.ai/callback',
-        logoUrl: '/logos/mt3.png',
     },
     mt4: {
         cognitoDomain: 'reva-auth-test5.auth.us-east-1.amazoncognito.com',
@@ -40,6 +36,5 @@ export const customerConfigs: { [key: string]: CustomerConfig } = {
         userPoolId: 'us-east-1_Yojn9QwZS',
         region: 'us-east-1',
         redirectUri: 'https://mt4.ea.reva.ai/callback',
-        logoUrl: '/logos/mt4.png',
     },
 };

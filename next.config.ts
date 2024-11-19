@@ -1,12 +1,10 @@
-// next.config.js
+// next.config.ts
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-    // Enable experimental features if needed
-    experimental: {
-        appDir: true,
-    },
-    // Other configurations
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+    // Remove the experimental.appDir option
+    // If you have other experimental options, you can keep them
 };
 
-module.exports = nextConfig;
+export default nextConfig;
