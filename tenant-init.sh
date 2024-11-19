@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Ensure AWS_APP_ID and DOMAIN environment variables are set
-if [[ -z "$AWS_APP_ID" || -z "$DOMAIN" ]]; then
-  echo "Error: AWS_APP_ID and DOMAIN environment variables must be set."
+if [[ -z "$AWS_APP_ID" || -z "$DOMAIN" || -z "$APP_NAME" || -z "$REGION" ]]; then
+  echo "Error: AWS_APP_ID, DOMAIN, APP_NAME and REGION environment variables must be set."
   exit 1
 fi
 
@@ -32,11 +32,10 @@ for domain in $domains; do
   subdomains+=("$subdomain")
 done
 
-# Define the POOL string
-POOL="My Domain is"
-
 # Create the final list
 echo "Final list:"
 for subdomain in "${subdomains[@]}"; do
-  echo "$POOL $subdomain"
+  modified_subdomain=$(echo "$APP_NAME" | sed "s/{domain}/$subdomain/g")
+  modified_subdomain=$(echo "modified_subdomain" | sed "s/{region}/$REGION/g")
+  echo "Cognito Pool : $modified_subdomain"
 done
