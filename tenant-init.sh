@@ -42,70 +42,16 @@ for subdomain in "${subdomains[@]}"; do
   echo "$pool_name"
 done
 
-# Function to find user pool ID by name with pagination
-find_user_pool_id() {
-  local pool_name="$1"
-  local next_token=""
-  while true; do
-    response=$(aws cognito-idp list-user-pools --max-results 60 --region "$REGION" \
-      --starting-token "$next_token" \
-      --query "UserPools[?Name=='$pool_name'].Id" --output text)
-
-    if [[ -n "$response" && "$response" != "None" ]]; then
-      echo "$response"
-      return 0
-    fi
-
-    # Get the NextToken
-    next_token=$(aws cognito-idp list-user-pools --max-results 60 --region "$REGION" \
-      --starting-token "$next_token" \
-      --query 'NextToken' --output text)
-
-    if [[ -z "$next_token" || "$next_token" == "None" ]]; then
-      break
-    fi
-  done
-
-  echo ""
-}
-
-# For each pool_name, get the user_pool_id and app clients
-echo -e "\nUser Pool IDs and App Clients:"
+# For each pool_name, get the user_pool_id from Cognito and print it
+echo -e "\nUser Pool IDs:"
 for pool_name in "${pool_list[@]}"; do
-  user_pool_id=$(find_user_pool_id "$pool_name")
-  if [[ -z "$user_pool_id" ]]; then
+  # Use AWS CLI to list user pools and filter by pool_name
+  user_pool_id=$(aws cognito-idp list-user-pools --max-results 60 --region "$REGION" \
+    --query "UserPools[?Name=='$pool_name'].Id" --output text)
+
+  if [[ -z "$user_pool_id" || "$user_pool_id" == "None" ]]; then
     echo "User pool not found for pool name: $pool_name"
   else
     echo "Pool Name: $pool_name, User Pool ID: $user_pool_id"
-
-    # List app clients for the user pool
-    app_clients=$(aws cognito-idp list-user-pool-clients --user-pool-id "$user_pool_id" --region "$REGION" --query 'UserPoolClients[].{ClientId:ClientId,ClientName:ClientName}' --output json)
-
-    # Check if app clients are found
-    if [[ -z "$app_clients" || "$app_clients" == "[]" ]]; then
-      echo "No app clients found for user pool: $user_pool_id"
-    else
-      echo "App Clients for User Pool ID $user_pool_id:"
-      echo "$app_clients" | jq -r '.[] | "  Client Name: \(.ClientName), Client ID: \(.ClientId)"'
-
-      # For each app client, get the client secret securely
-      echo "$app_clients" | jq -r '.[] | .ClientId' | while read client_id; do
-        # Get the app client details
-        app_client_details=$(aws cognito-idp describe-user-pool-client --user-pool-id "$user_pool_id" --client-id "$client_id" --region "$REGION" --query 'UserPoolClient.{ClientName:ClientName,ClientId:ClientId,ClientSecret:ClientSecret}' --output json)
-
-        # Extract client name and client secret
-        client_name=$(echo "$app_client_details" | jq -r '.ClientName')
-        client_secret=$(echo "$app_client_details" | jq -r '.ClientSecret')
-
-        # Handle the client secret securely
-        # For demonstration, we're printing the client ID and client name only
-        # Avoid printing the client secret in logs
-        echo "  Client Name: $client_name, Client ID: $client_id (Client Secret: $client_secret)"
-
-        # If you need to use the client secret, store it securely, e.g., in AWS Secrets Manager
-        # Example (do not run in production without proper security measures):
-        # aws secretsmanager create-secret --name "${pool_name}_${client_name}_client_secret" --secret-string "$client_secret" --region "$REGION"
-      done
-    fi
   fi
 done
