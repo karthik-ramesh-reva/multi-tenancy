@@ -39,7 +39,7 @@ export const customerConfigs: { [key: string]: CustomerConfig } = {
         logoutUri: 'https://mt2.ea.reva.ai'
     },
     mt3: {
-        cognitoDomain: 'https://reva-auth-test6.auth.us-east-1.amazoncognito.com',
+        cognitoDomain: 'reva-auth-test6.auth.us-east-1.amazoncognito.com',
         clientId: '476f4hlm7kfm60ic8smehrp7vl',
         clientSecret: '68p97cturscub2a7mhgutlt8b8d7fv8q5rg4elde9utals54ise',
         userPoolId: 'us-east-1_B7VSw0fEc',
