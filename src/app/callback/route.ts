@@ -15,7 +15,14 @@ export async function GET(request: NextRequest) {
         return new NextResponse('Authentication error', { status: 400 });
     }
 
-    const { clientId, clientSecret, redirectUri, cognitoDomain } = customerConfigs[subdomain];
+    const { clientId, clientSecret, cognitoDomain } = customerConfigs[subdomain];
+
+    const headersList = request.headers;
+    const host = headersList.get('host') || '';
+
+    // Construct the redirectUri dynamically based on the host
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const redirectUri = `${protocol}://${host}/callback`;
 
     const tokenUrl = `https://${cognitoDomain}/oauth2/token`;
     const paramsObj = new URLSearchParams({
@@ -43,7 +50,9 @@ export async function GET(request: NextRequest) {
         const { id_token, access_token, refresh_token } = response.data;
 
         // Construct the absolute URL for redirection
-        const redirectUrl = new URL('/', request.url).toString();
+        const redirectUrl = `${protocol}://${host}/`;
+
+        console.log('Redirecting to:', redirectUrl);
 
         // Set tokens in cookies and redirect
         const responseCookies = NextResponse.redirect(redirectUrl);
