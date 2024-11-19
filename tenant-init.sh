@@ -115,6 +115,7 @@ customer_config_ts_content+="}\n\n"
 customer_config_ts_content+="$customer_configs_content"
 
 # Write the content to customerConfig.ts
-#echo -e "$customer_config_ts_content" > "$CUSTOMER_CONFIG_FILE"
-echo "$customer_config_ts_content"
+echo -e "$customer_config_ts_content" > "$CUSTOMER_CONFIG_FILE"
 echo "customerConfig.ts has been updated."
+
+cat utils/customerConfig.ts
