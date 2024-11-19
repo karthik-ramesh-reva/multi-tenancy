@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
     const headersList = request.headers;
     const host = headersList.get('host') || '';
 
-    // Construct the redirectUri dynamically based on the host
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const redirectUri = `${protocol}://${host}/callback`;
 
@@ -32,10 +31,8 @@ export async function GET(request: NextRequest) {
         code,
     });
 
-    // Construct the Basic Auth header
     const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
-    // Log the token request details
     console.log('Token URL:', tokenUrl);
     console.log('Token request parameters:', paramsObj.toString());
 
@@ -49,12 +46,10 @@ export async function GET(request: NextRequest) {
 
         const { id_token, access_token, refresh_token } = response.data;
 
-        // Construct the absolute URL for redirection
         const redirectUrl = `${protocol}://${host}/`;
 
         console.log('Redirecting to:', redirectUrl);
 
-        // Set tokens in cookies and redirect
         const responseCookies = NextResponse.redirect(redirectUrl);
 
         responseCookies.cookies.set('idToken', id_token, {

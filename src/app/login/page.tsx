@@ -11,7 +11,6 @@ export default async function LoginPage() {
     console.log('Subdomain:', subdomain);
 
     if (!subdomain || !customerConfigs[subdomain]) {
-        // Handle missing subdomain or customer config
         return <h1>Customer not found</h1>;
     }
 
@@ -19,9 +18,7 @@ export default async function LoginPage() {
 
     const loginUrl = `https://${cognitoDomain}/login?client_id=${clientId}&response_type=code&scope=email+openid+phone&redirect_uri=${encodeURIComponent(
         redirectUri
-    )}&state=${encodeURIComponent(subdomain)}`; // Include subdomain in state
-
-    // Redirect to Cognito Hosted UI
+    )}&state=${encodeURIComponent(subdomain)}`;
     redirect(loginUrl);
 
     return null;
