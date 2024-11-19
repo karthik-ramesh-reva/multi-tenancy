@@ -66,7 +66,7 @@ for subdomain in "${subdomains[@]}"; do
   cognito_domain="${pool_name}.auth.${REGION}.amazoncognito.com"
 
   # List app clients for the user pool
-  app_clients=$(aws cognito-idp list-user-pool-clients --user-pool-id "$user_pool_id" --region "$REGION" --query 'UserPoolClients[?ClientName==`app_client`]' --output json)
+  app_clients=$(aws cognito-idp list-user-pool-clients --user-pool-id "$user_pool_id" --region "$REGION" --query 'UserPoolClients[].{ClientId:ClientId,ClientName:ClientName}' --output json)
 
   # Check if app clients are found
   if [[ -z "$app_clients" || "$app_clients" == "[]" ]]; then
