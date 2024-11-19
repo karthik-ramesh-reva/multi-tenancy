@@ -67,6 +67,8 @@ for pool_name in "${pool_list[@]}"; do
             # Get the app client details
             app_client_details=$(aws cognito-idp describe-user-pool-client --user-pool-id "$user_pool_id" --client-id "$client_id" --region "$REGION" --query 'UserPoolClient.{ClientName:ClientName,ClientId:ClientId,ClientSecret:ClientSecret}' --output json)
 
+            echo "App Client Details: $app_client_details"
+
             # Extract client name and client secret
             client_name=$(echo "$app_client_details" | jq -r '.ClientName')
             client_secret=$(echo "$app_client_details" | jq -r '.ClientSecret')
