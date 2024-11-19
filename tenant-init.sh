@@ -36,6 +36,6 @@ done
 echo "Final list:"
 for subdomain in "${subdomains[@]}"; do
   modified_subdomain=$(echo "$APP_NAME" | sed "s/{domain}/$subdomain/g")
-  modified_subdomain=$(echo "modified_subdomain" | sed "s/{region}/$REGION/g")
+  modified_subdomain=$(echo "$modified_subdomain" | sed "s/{region}/$REGION/g")
   echo "Cognito Pool : $modified_subdomain"
 done
