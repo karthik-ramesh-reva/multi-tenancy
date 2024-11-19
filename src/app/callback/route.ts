@@ -1,21 +1,21 @@
+// src/app/callback/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { customerConfigs } from '@/utils/customerConfig';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const code = searchParams.get('code');
-
-    // Access headers to get the subdomain
-    const headersList = request.headers;
-    const subdomain = headersList.get('x-subdomain');
+    const subdomain = searchParams.get('state'); // Retrieve subdomain from state
 
     if (!code || !subdomain || !customerConfigs[subdomain]) {
+        console.error('Missing code, subdomain, or customer config');
         return new NextResponse('Authentication error', { status: 400 });
     }
 
-    const { clientId, redirectUri, cognitoDomain } = customerConfigs[subdomain];
+    const { clientId, clientSecret, redirectUri, cognitoDomain } = customerConfigs[subdomain];
 
     const tokenUrl = `https://${cognitoDomain}/oauth2/token`;
     const paramsObj = new URLSearchParams({
@@ -25,15 +25,29 @@ export async function GET(request: NextRequest) {
         code,
     });
 
+    // Construct the Basic Auth header
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    // Log the token request details
+    console.log('Token URL:', tokenUrl);
+    console.log('Token request parameters:', paramsObj.toString());
+
     try {
         const response = await axios.post(tokenUrl, paramsObj.toString(), {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${basicAuth}`,
+            },
         });
 
         const { id_token, access_token, refresh_token } = response.data;
 
-        // Set tokens in cookies
-        const responseCookies = NextResponse.redirect('/');
+        // Construct the absolute URL for redirection
+        const redirectUrl = new URL('/', request.url).toString();
+
+        // Set tokens in cookies and redirect
+        const responseCookies = NextResponse.redirect(redirectUrl);
+
         responseCookies.cookies.set('idToken', id_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -52,7 +66,13 @@ export async function GET(request: NextRequest) {
 
         return responseCookies;
     } catch (error) {
-        console.error('Authentication error:', error);
+        if (error instanceof AxiosError) {
+            console.error('Authentication error:', error.response?.data || error.message);
+        } else if (error instanceof Error) {
+            console.error('Error:', error.message);
+        } else {
+            console.error('Unknown error:', error);
+        }
         return new NextResponse('Authentication error', { status: 500 });
     }
 }

@@ -49,9 +49,9 @@ function getSubdomain(hostname: string): string | null {
     const domainParts = hostname.split('.');
 
     // Handle localhost and development environment
-    if (hostname.startsWith('localhost') || hostname.startsWith('127.0.0.1')) {
+    if (hostname.startsWith('localhost') || hostname.startsWith('127.0.0.1') || hostname.startsWith('reva.local')) {
         // You can set a default subdomain for development
-        return 'mt1';
+        return 'reva';
     }
 
     if (domainParts.length >= 3) {

@@ -12,6 +12,8 @@
     "aws-amplify": "^6.8.2",
     "axios": "^1.7.7",
     "cookie": "^1.0.1",
+    "jose": "^5.9.6",
+    "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@types/cookie": "^0.6.0",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/jwt-decode": "^2.2.1",
     "@types/node": "^20",
     "@types/react": "^18",
