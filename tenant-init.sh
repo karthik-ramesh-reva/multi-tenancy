@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Ensure required environment variables are set
 if [[ -z "$AWS_APP_ID" || -z "$DOMAIN" || -z "$APP_NAME" || -z "$REGION" ]]; then
   echo "Error: AWS_APP_ID, DOMAIN, APP_NAME, and REGION environment variables must be set."
   exit 1
@@ -106,7 +105,3 @@ if [[ $? -ne 0 ]]; then
 fi
 
 echo "$updated_content" > "$CUSTOMER_CONFIG_FILE"
-
-echo "customerConfig.ts has been updated."
-
-cat "$CUSTOMER_CONFIG_FILE"
