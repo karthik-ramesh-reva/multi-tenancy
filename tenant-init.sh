@@ -53,5 +53,33 @@ for pool_name in "${pool_list[@]}"; do
     echo "User pool not found for pool name: $pool_name"
   else
     echo "Pool Name: $pool_name, User Pool ID: $user_pool_id"
+    # List app clients for the user pool
+        app_clients=$(aws cognito-idp list-user-pool-clients --user-pool-id "$user_pool_id" --region "$REGION" --query 'UserPoolClients[].{ClientId:ClientId,ClientName:ClientName}' --output json)
+        # Check if app clients are found
+        if [[ -z "$app_clients" || "$app_clients" == "[]" ]]; then
+          echo "No app clients found for user pool: $user_pool_id"
+        else
+          echo "App Clients for User Pool ID $user_pool_id:"
+          echo "$app_clients" | jq -r '.[] | "  Client Name: \(.ClientName), Client ID: \(.ClientId)"'
+
+          # For each app client, get the client secret securely
+          echo "$app_clients" | jq -r '.[] | .ClientId' | while read client_id; do
+            # Get the app client details
+            app_client_details=$(aws cognito-idp describe-user-pool-client --user-pool-id "$user_pool_id" --client-id "$client_id" --region "$REGION" --query 'UserPoolClient.{ClientName:ClientName,ClientId:ClientId,ClientSecret:ClientSecret}' --output json)
+
+            # Extract client name and client secret
+            client_name=$(echo "$app_client_details" | jq -r '.ClientName')
+            client_secret=$(echo "$app_client_details" | jq -r '.ClientSecret')
+
+            # Handle the client secret securely
+            # For demonstration, we're printing the client ID and client name only
+            # Avoid printing the client secret in logs
+            echo "  Client Name: $client_name, Client ID: $client_id, Client Secret: $client_secret"
+
+            # If you need to use the client secret, store it securely, e.g., in AWS Secrets Manager
+            # Example (do not run in production without proper security measures):
+            # aws secretsmanager create-secret --name "${pool_name}_${client_name}_client_secret" --secret-string "$client_secret" --region "$REGION"
+          done
+        fi
   fi
 done
